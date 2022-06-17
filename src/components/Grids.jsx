@@ -1,7 +1,10 @@
 import React from "react";
 import { useEffect } from "react";
+import { useContext } from "react";
 import { useState } from "react";
+import { AppContext } from "../context/AppContext";
 import Cell from "./Cell";
+import MainButton from "./MainButton";
 import Score from "./Score";
 import Timer from "./Timer";
 
@@ -51,6 +54,7 @@ function Grids(props) {
   const [knightX, setKnightX] = useState(0);
   const [knightY, setKnightY] = useState(0);
 
+  const { setScore } = useContext(AppContext);
   useEffect(() => {
     spawnKnight(knightX, knightY);
     spawnCollectables();
@@ -90,6 +94,7 @@ function Grids(props) {
 
     if (board[knightX][knightY + 1]?.props?.id == "collectable") {
       console.log("on collect right");
+      setScore((prev) => prev + 10);
     }
 
     board[knightX][knightY] = null;
@@ -104,6 +109,7 @@ function Grids(props) {
     if (knightY <= 0) return;
     if (board[knightX][knightY - 1]?.props?.id == "collectable") {
       console.log("on collect left");
+      setScore((prev) => prev + 10);
     }
     board[knightX][knightY] = null;
     board[knightX][knightY - 1] = (
@@ -117,6 +123,7 @@ function Grids(props) {
     if (knightX >= 19) return;
     if (board[knightX + 1][knightY]?.props?.id == "collectable") {
       console.log("on collect down");
+      setScore((prev) => prev + 10);
     }
     board[knightX][knightY] = null;
     board[knightX + 1][knightY] = (
@@ -130,6 +137,7 @@ function Grids(props) {
     if (knightX <= 0) return;
     if (board[knightX - 1][knightY]?.props?.id == "collectable") {
       console.log("on collect up");
+      setScore((prev) => prev + 10);
     }
     board[knightX][knightY] = null;
     board[knightX - 1][knightY] = (
@@ -160,10 +168,45 @@ function Grids(props) {
     setBoard([...board]);
   };
 
+  const { timer, setTimer, setTimerInterval, timerInterval } =
+    useContext(AppContext);
+  let { milliseconds, seconds, minutes } = timer;
+
+  const startTimer = () => {
+    runTimer();
+    setTimerInterval(setInterval(runTimer, 10));
+  };
+
+  const stopTimer = () => {
+    clearInterval(timerInterval);
+  };
+  const runTimer = () => {
+    if (milliseconds >= 100) {
+      seconds++;
+      milliseconds = 0;
+    }
+
+    if (seconds >= 60) {
+      minutes++;
+      seconds = 0;
+    }
+
+    milliseconds++;
+    return setTimer({ milliseconds, seconds, minutes });
+  };
+
   return (
     <div id="game_board">
       <div className="timer flex_center">
-        <Timer />
+        <div>
+          <MainButton label={"Start"} onClick={startTimer} />
+          <Timer
+            milliseconds={milliseconds}
+            minutes={minutes}
+            seconds={seconds}
+          />
+          <MainButton label={"Stop"} onClick={stopTimer} />
+        </div>
       </div>
       <div>
         {board.map((item, index) => {
