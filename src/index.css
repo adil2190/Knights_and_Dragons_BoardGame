@@ -30,7 +30,7 @@ home page
 ==============================================
 */
 #home {
-  background-color: #ddd;
+  background-color: #f5f5f5;
   display: flex;
   justify-content: center;
   /* height: 100vh; */
@@ -58,9 +58,9 @@ game grid
 }
 
 .timer {
-  width: 200px;
+  width: 280px;
 }
 
 .score {
-  width: 200px;
+  width: 280px;
 }
