@@ -2,6 +2,8 @@ import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import Cell from "./Cell";
+import Score from "./Score";
+import Timer from "./Timer";
 
 // function Grids(props) {
 //   const [cells, setCells] = useState([]);
@@ -21,29 +23,43 @@ import Cell from "./Cell";
 //   return <div id="game_board">{cells}</div>;
 // }
 
+const randomNum = () => Math.ceil(Math.random() * (19 - 1) + 1);
+
 function Grids(props) {
   const [board, setBoard] = useState([
-    Array(10).fill(null),
-    Array(10).fill(null),
-    Array(10).fill(null),
-    Array(10).fill(null),
-    Array(10).fill(null),
-    Array(10).fill(null),
-    Array(10).fill(null),
-    Array(10).fill(null),
-    Array(10).fill(null),
-    Array(10).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
+    Array(20).fill(null),
   ]);
   const [knightX, setKnightX] = useState(0);
   const [knightY, setKnightY] = useState(0);
 
   useEffect(() => {
     spawnKnight(knightX, knightY);
+    spawnCollectables();
+    // spawnDanger(2, 2);
   }, []);
 
   useEffect(() => {
     window.addEventListener("keydown", handleMovement);
-    console.log("2 effect fired");
+    // console.log("2 effect fired");
     return () => window.removeEventListener("keydown", handleMovement);
   }, [knightX, knightY]);
 
@@ -70,7 +86,12 @@ function Grids(props) {
   };
 
   const moveRight = () => {
-    if (knightY >= 9) return;
+    if (knightY >= 19) return;
+
+    if (board[knightX][knightY + 1]?.props?.id == "collectable") {
+      console.log("on collect right");
+    }
+
     board[knightX][knightY] = null;
     board[knightX][knightY + 1] = (
       <img src="/assets/knight.png" className="image" />
@@ -81,6 +102,9 @@ function Grids(props) {
 
   const moveLeft = () => {
     if (knightY <= 0) return;
+    if (board[knightX][knightY - 1]?.props?.id == "collectable") {
+      console.log("on collect left");
+    }
     board[knightX][knightY] = null;
     board[knightX][knightY - 1] = (
       <img src="/assets/knight.png" className="image" />
@@ -90,7 +114,10 @@ function Grids(props) {
   };
 
   const moveDown = () => {
-    if (knightX >= 9) return;
+    if (knightX >= 19) return;
+    if (board[knightX + 1][knightY]?.props?.id == "collectable") {
+      console.log("on collect down");
+    }
     board[knightX][knightY] = null;
     board[knightX + 1][knightY] = (
       <img src="/assets/knight.png" className="image" />
@@ -101,6 +128,9 @@ function Grids(props) {
 
   const moveUp = () => {
     if (knightX <= 0) return;
+    if (board[knightX - 1][knightY]?.props?.id == "collectable") {
+      console.log("on collect up");
+    }
     board[knightX][knightY] = null;
     board[knightX - 1][knightY] = (
       <img src="/assets/knight.png" className="image" />
@@ -114,26 +144,48 @@ function Grids(props) {
     setBoard([...board]);
   };
 
+  const spawnCollectables = () => {
+    for (let i = 0; i < 3; i++) {
+      board[randomNum()][randomNum()] = (
+        <img id="collectable" src="/assets/collectable.png" className="image" />
+      );
+    }
+    setBoard([...board]);
+  };
+
+  const spawnDanger = (x, y) => {
+    board[x][y] = (
+      <img id="danger" src="/assets/danger.png" className="image" />
+    );
+    setBoard([...board]);
+  };
+
   return (
     <div id="game_board">
-      {board.map((item, index) => {
-        return (
-          <div style={{ backgroundColor: "#999", display: "flex" }}>
-            {item.map((item1, index1) => (
-              <Cell
-                onClick={() => {
-                  // setKnightX((prev) => prev + 1);
-                  // console.log(knightX);
-                  // spawnKnight(index, index1);
-                  moveRight();
-                }}
-              >
-                {item1}
-              </Cell>
-            ))}
-          </div>
-        );
-      })}
+      <div className="timer flex_center">
+        <Timer />
+      </div>
+      <div>
+        {board.map((item, index) => {
+          return (
+            <div style={{ backgroundColor: "#999", display: "flex" }}>
+              {item.map((item1, index1) => (
+                <Cell
+                  key={index1}
+                  onClick={() => {
+                    console.log(item1);
+                  }}
+                >
+                  {item1}
+                </Cell>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+      <div className="score flex_center">
+        <Score />
+      </div>
     </div>
   );
 }

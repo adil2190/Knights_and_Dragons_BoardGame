@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   border: 0;
@@ -6,13 +10,19 @@
   font-family: sans-serif;
 }
 
+.flex_center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* 
 images
 ======================
 */
 
 .image {
-  width: 50px;
+  width: 30px;
 }
 
 /* 
@@ -23,25 +33,34 @@ home page
   background-color: #ddd;
   display: flex;
   justify-content: center;
-  height: 100vh;
+  /* height: 100vh; */
   align-items: center;
 }
 
-/* #game_board {
-  display: grid;
-  grid-template-columns: repeat(20, 45px);
-  grid-template-rows: repeat(20, 45px);
-  background-color: #ddd;
-  gap: 5px;
-} */
+/* 
+game grid
+================================
+*/
+
+#game_board {
+  display: flex;
+}
 
 .cell {
   background-color: #333;
-  height: 60px;
-  width: 60px;
-  margin: 2px;
-  border-radius: 3px;
+  height: 35px;
+  width: 35px;
+  margin: 1px;
+  border-radius: 2px;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.timer {
+  width: 200px;
+}
+
+.score {
+  width: 200px;
 }
