@@ -13,9 +13,6 @@ function TimerCard({ time, label, ...props }) {
       >
         {time}
       </div>
-      <p className="text-center text-[12px] font-semibold text-[#555] mt-[5px]">
-        {label}
-      </p>
     </div>
   );
 }

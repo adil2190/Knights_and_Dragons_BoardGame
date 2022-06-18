@@ -5,6 +5,8 @@ import { useState } from "react";
 import { AppContext } from "../context/AppContext";
 import Cell from "./Cell";
 import MainButton from "./MainButton";
+import MainModal from "./modals/GameOverModal";
+import VictoryModal from "./modals/VictoryModal";
 import Score from "./Score";
 import Timer from "./Timer";
 
@@ -53,38 +55,66 @@ function Grids(props) {
   ]);
   const [knightX, setKnightX] = useState(0);
   const [knightY, setKnightY] = useState(0);
-
-  const { setScore } = useContext(AppContext);
+  const [gameOverModal, setGameOverModal] = useState(false);
+  const [successModal, setSuccessModal] = useState(false);
+  const [isGameStarted, setIsGameStarted] = useState(false);
+  const { score, setScore } = useContext(AppContext);
   useEffect(() => {
     spawnKnight(knightX, knightY);
     spawnCollectables();
+    spawnDanger();
     // spawnDanger(2, 2);
   }, []);
 
   useEffect(() => {
     window.addEventListener("keydown", handleMovement);
     // console.log("2 effect fired");
-    return () => window.removeEventListener("keydown", handleMovement);
-  }, [knightX, knightY]);
+    if (gameOverModal) {
+      stopTimer();
+      window.removeEventListener("keydown", handleMovement);
+    }
 
+    if (successModal) {
+      stopTimer();
+      window.removeEventListener("keydown", handleMovement);
+    }
+
+    if (!isGameStarted) {
+      window.removeEventListener("keydown", handleMovement);
+    }
+    if (checkifWin()) {
+      stopTimer();
+      setSuccessModal(true);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleMovement);
+      // stopTimer();
+    };
+  }, [knightX, knightY, isGameStarted]);
+
+  const checkifWin = () => {
+    console.log("in win");
+    const remainingCollectables = board.map((item) =>
+      item.some((item1) => item1?.props?.id == "collectable")
+    );
+
+    return remainingCollectables.indexOf(true) == -1;
+  };
   const handleMovement = (e) => {
     if (e.key == "ArrowUp") {
-      console.log("up");
       moveUp();
     }
 
     if (e.key == "ArrowDown") {
-      console.log("down");
       moveDown();
     }
 
     if (e.key == "ArrowRight") {
-      console.log("right");
       moveRight();
     }
 
     if (e.key == "ArrowLeft") {
-      console.log("left");
       moveLeft();
     }
   };
@@ -93,8 +123,10 @@ function Grids(props) {
     if (knightY >= 19) return;
 
     if (board[knightX][knightY + 1]?.props?.id == "collectable") {
-      console.log("on collect right");
       setScore((prev) => prev + 10);
+    }
+    if (board[knightX][knightY + 1]?.props?.id == "danger") {
+      setGameOverModal(true);
     }
 
     board[knightX][knightY] = null;
@@ -108,8 +140,10 @@ function Grids(props) {
   const moveLeft = () => {
     if (knightY <= 0) return;
     if (board[knightX][knightY - 1]?.props?.id == "collectable") {
-      console.log("on collect left");
       setScore((prev) => prev + 10);
+    }
+    if (board[knightX][knightY - 1]?.props?.id == "danger") {
+      setGameOverModal(true);
     }
     board[knightX][knightY] = null;
     board[knightX][knightY - 1] = (
@@ -122,8 +156,10 @@ function Grids(props) {
   const moveDown = () => {
     if (knightX >= 19) return;
     if (board[knightX + 1][knightY]?.props?.id == "collectable") {
-      console.log("on collect down");
       setScore((prev) => prev + 10);
+    }
+    if (board[knightX + 1][knightY]?.props?.id == "danger") {
+      setGameOverModal(true);
     }
     board[knightX][knightY] = null;
     board[knightX + 1][knightY] = (
@@ -136,8 +172,10 @@ function Grids(props) {
   const moveUp = () => {
     if (knightX <= 0) return;
     if (board[knightX - 1][knightY]?.props?.id == "collectable") {
-      console.log("on collect up");
       setScore((prev) => prev + 10);
+    }
+    if (board[knightX - 1][knightY]?.props?.id == "danger") {
+      setGameOverModal(true);
     }
     board[knightX][knightY] = null;
     board[knightX - 1][knightY] = (
@@ -153,7 +191,7 @@ function Grids(props) {
   };
 
   const spawnCollectables = () => {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
       board[randomNum()][randomNum()] = (
         <img id="collectable" src="/assets/collectable.png" className="image" />
       );
@@ -161,10 +199,12 @@ function Grids(props) {
     setBoard([...board]);
   };
 
-  const spawnDanger = (x, y) => {
-    board[x][y] = (
-      <img id="danger" src="/assets/danger.png" className="image" />
-    );
+  const spawnDanger = () => {
+    for (let i = 0; i < 4; i++) {
+      board[randomNum()][randomNum()] = (
+        <img id="danger" src="/assets/danger.png" className="image" />
+      );
+    }
     setBoard([...board]);
   };
 
@@ -199,36 +239,58 @@ function Grids(props) {
     <div id="game_board">
       <div className="timer flex_center">
         <div>
-          <MainButton label={"Start"} onClick={startTimer} />
           <Timer
             milliseconds={milliseconds}
             minutes={minutes}
             seconds={seconds}
           />
-          <MainButton label={"Stop"} onClick={stopTimer} />
+          {/* <MainButton label={"Stop"} onClick={stopTimer} /> */}
         </div>
       </div>
-      <div>
-        {board.map((item, index) => {
-          return (
-            <div style={{ backgroundColor: "#999", display: "flex" }}>
-              {item.map((item1, index1) => (
-                <Cell
-                  key={index1}
-                  onClick={() => {
-                    console.log(item1);
-                  }}
-                >
-                  {item1}
-                </Cell>
-              ))}
-            </div>
-          );
-        })}
-      </div>
+      {isGameStarted ? (
+        <div>
+          {board.map((item, index) => {
+            return (
+              <div style={{ backgroundColor: "#999", display: "flex" }}>
+                {item.map((item1, index1) => (
+                  <Cell
+                    key={index1}
+                    onClick={() => {
+                      console.log(item1);
+                    }}
+                  >
+                    {item1}
+                  </Cell>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div
+          className="w-[740px] text-center 
+        text-[#f9c802] text-[60px] 
+        font-bold cursor-pointer bg-[#fff] 
+        flex justify-center items-center 
+        rounded-lg shadow-md
+        "
+          onClick={() => {
+            startTimer();
+            setIsGameStarted(true);
+          }}
+        >
+          Start Playing!
+        </div>
+      )}
       <div className="score flex_center">
         <Score />
       </div>
+      {gameOverModal && (
+        <MainModal closeModal={() => setGameOverModal(false)} />
+      )}
+      {successModal && (
+        <VictoryModal closeModal={() => setSuccessModal(false)} />
+      )}
     </div>
   );
 }
