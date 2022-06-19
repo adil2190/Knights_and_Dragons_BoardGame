@@ -9,6 +9,7 @@ export const AppProvider = (props) => {
     milliseconds: 0,
     seconds: 0,
     minutes: 0,
+    totalTime: 0,
   });
   const [timerInterval, setTimerInterval] = useState({});
 

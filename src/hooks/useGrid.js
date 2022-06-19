@@ -2,7 +2,9 @@ import React from "react";
 import { useEffect } from "react";
 import { useContext } from "react";
 import { useState } from "react";
+import { userInfo } from "../configs/details";
 import { AppContext } from "../context/AppContext";
+import { addScore } from "../services/gameService";
 
 const randomNum = () => Math.ceil(Math.random() * (19 - 1) + 1);
 
@@ -35,6 +37,8 @@ function useGrid(props) {
   const [successModal, setSuccessModal] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const { score, setScore } = useContext(AppContext);
+  const { timer, setTimer, setTimerInterval, timerInterval } =
+    useContext(AppContext);
   useEffect(() => {
     spawnKnight(knightX, knightY);
     spawnCollectables();
@@ -60,7 +64,9 @@ function useGrid(props) {
     }
     if (checkifWin()) {
       stopTimer();
+      window.removeEventListener("keydown", handleMovement);
       setSuccessModal(true);
+      postScore(winBody);
     }
 
     return () => {
@@ -76,6 +82,29 @@ function useGrid(props) {
     );
 
     return remainingCollectables.indexOf(true) == -1;
+  };
+
+  const lossBody = {
+    playerId: userInfo.id,
+    fullName: userInfo.fullName,
+    status: "lost",
+    time: timer.totalTime,
+  };
+
+  const winBody = {
+    playerId: userInfo.id,
+    fullName: userInfo.fullName,
+    status: "won",
+    time: timer.totalTime,
+  };
+
+  const postScore = async (body) => {
+    try {
+      const res = await addScore(body);
+      console.log(res.data);
+    } catch (err) {
+      console.log(err);
+    }
   };
   const handleMovement = (e) => {
     if (e.key == "ArrowUp") {
@@ -103,6 +132,7 @@ function useGrid(props) {
     }
     if (board[knightX][knightY + 1]?.props?.id == "danger") {
       setGameOverModal(true);
+      postScore(lossBody);
     }
 
     board[knightX][knightY] = null;
@@ -120,6 +150,7 @@ function useGrid(props) {
     }
     if (board[knightX][knightY - 1]?.props?.id == "danger") {
       setGameOverModal(true);
+      postScore(lossBody);
     }
     board[knightX][knightY] = null;
     board[knightX][knightY - 1] = (
@@ -136,6 +167,7 @@ function useGrid(props) {
     }
     if (board[knightX + 1][knightY]?.props?.id == "danger") {
       setGameOverModal(true);
+      postScore(lossBody);
     }
     board[knightX][knightY] = null;
     board[knightX + 1][knightY] = (
@@ -152,6 +184,7 @@ function useGrid(props) {
     }
     if (board[knightX - 1][knightY]?.props?.id == "danger") {
       setGameOverModal(true);
+      postScore(lossBody);
     }
     board[knightX][knightY] = null;
     board[knightX - 1][knightY] = (
@@ -167,7 +200,7 @@ function useGrid(props) {
   };
 
   const spawnCollectables = () => {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       board[randomNum()][randomNum()] = (
         <img id="collectable" src="/assets/collectable.png" className="image" />
       );
@@ -176,7 +209,7 @@ function useGrid(props) {
   };
 
   const spawnDanger = () => {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       board[randomNum()][randomNum()] = (
         <img id="danger" src="/assets/danger.png" className="image" />
       );
@@ -184,9 +217,7 @@ function useGrid(props) {
     setBoard([...board]);
   };
 
-  const { timer, setTimer, setTimerInterval, timerInterval } =
-    useContext(AppContext);
-  let { milliseconds, seconds, minutes } = timer;
+  let { milliseconds, seconds, minutes, totalTime } = timer;
 
   const startTimer = () => {
     runTimer();
@@ -199,6 +230,7 @@ function useGrid(props) {
   const runTimer = () => {
     if (milliseconds >= 100) {
       seconds++;
+      totalTime++;
       milliseconds = 0;
     }
 
@@ -208,7 +240,7 @@ function useGrid(props) {
     }
 
     milliseconds++;
-    return setTimer({ milliseconds, seconds, minutes });
+    return setTimer({ milliseconds, seconds, minutes, totalTime });
   };
 
   return {

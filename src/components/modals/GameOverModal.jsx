@@ -1,4 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
+import { AppContext } from "../../context/AppContext";
+import { signOutUser } from "../../services/firebaseService";
 import MainButton from "../MainButton";
 
 function MainModal({ closeModal, ...props }) {
@@ -7,6 +9,7 @@ function MainModal({ closeModal, ...props }) {
 
     return () => (document.body.style.overflowY = "unset");
   }, []);
+  const { timer } = useContext(AppContext);
   return (
     <div className="relative z-30" id="modal">
       <div
@@ -28,7 +31,7 @@ function MainModal({ closeModal, ...props }) {
         <div className="flex">
           <MainButton onClick={() => window.location.reload()} label="Replay" />
           <div className="w-[10px]" />
-          <MainButton onClick={closeModal} label="Logout" />
+          <MainButton onClick={signOutUser} label="Logout" />
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { signOutUser } from "../../services/firebaseService";
 import MainButton from "../MainButton";
 
 function VictoryModal({ closeModal, ...props }) {
@@ -28,7 +29,7 @@ function VictoryModal({ closeModal, ...props }) {
         <div className="flex">
           <MainButton onClick={() => window.location.reload()} label="Replay" />
           <div className="w-[10px]" />
-          <MainButton onClick={closeModal} label="Logout" />
+          <MainButton onClick={signOutUser} label="Logout" />
         </div>
       </div>
     </div>
