@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://192.168.100.9:3001/api";
+const BASE_URL = "https://knightsanddanger.herokuapp.com/api";
 
 const instance = axios.create({
   baseURL: BASE_URL,
