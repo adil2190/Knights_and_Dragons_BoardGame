@@ -1,12 +1,12 @@
 import React from "react";
-import LoginWrapper from "../components/LoginWrapper";
+import SignUpWrapper from "../components/SignUpWrapper";
 
-function Login(props) {
+function SignUp(props) {
   return (
     <div className="flex h-screen w-screen justify-center items-center">
-      <LoginWrapper />
+      <SignUpWrapper />
     </div>
   );
 }
 
-export default Login;
+export default SignUp;
