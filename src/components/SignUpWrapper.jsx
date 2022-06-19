@@ -3,6 +3,7 @@ import MainButton from "./MainButton";
 import MainInput from "./MainInput";
 import { Link } from "react-router-dom";
 import { createUser } from "../services/firebaseService";
+import { addUser } from "../services/gameService";
 
 function SignUpWrapper(props) {
   const [data, setData] = useState({ fullName: "", email: "", password: "" });
@@ -14,9 +15,19 @@ function SignUpWrapper(props) {
     try {
       setLoader(true);
       const res = await createUser(data.email, data.password);
-      console.log(res);
+      const addRes = await addUser({ ...data, id: res.user.uid, password: "" });
+      console.log(addRes);
+      localStorage.setItem(
+        "knightUser",
+        JSON.stringify({
+          ...data,
+          id: res.user.uid,
+          password: "",
+        })
+      );
+      window.location.reload();
     } catch (err) {
-      console.log(err);
+      setError(err);
     } finally {
       setLoader(false);
     }
@@ -31,22 +42,34 @@ function SignUpWrapper(props) {
           type="text"
           inputLabel={"Full Name"}
           value={data.fullName}
-          onChange={(e) => setData({ ...data, fullName: e.target.value })}
+          onChange={(e) => {
+            setError("");
+            setData({ ...data, fullName: e.target.value });
+          }}
         />
         <div className="h-[20px]" />
         <MainInput
           type="email"
           inputLabel={"Email"}
           value={data.email}
-          onChange={(e) => setData({ ...data, email: e.target.value })}
+          onChange={(e) => {
+            setError("");
+            setData({ ...data, email: e.target.value });
+          }}
         />
         <div className="h-[20px]" />
         <MainInput
           inputLabel={"Password"}
           type="password"
           value={data.password}
-          onChange={(e) => setData({ ...data, password: e.target.value })}
+          onChange={(e) => {
+            setError("");
+            setData({ ...data, password: e.target.value });
+          }}
         />
+        {error && (
+          <p className="text-red-700 text-[13px] text-center mt-2 ">{error}</p>
+        )}
         <div className="flex justify-center mt-[30px] ">
           <MainButton type="submit" label={"Sign up"} loading={loader} />
         </div>

@@ -30,3 +30,9 @@ export const signInUser = (email, password) => {
     }
   });
 };
+
+export const signOutUser = () => {
+  localStorage.clear();
+  auth.signOut();
+  window.location.reload();
+};

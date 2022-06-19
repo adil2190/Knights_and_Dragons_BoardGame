@@ -3,6 +3,7 @@ import MainButton from "./MainButton";
 import MainInput from "./MainInput";
 import { Link } from "react-router-dom";
 import { signInUser } from "../services/firebaseService";
+import { getUser } from "../services/gameService";
 
 function LoginWrapper(props) {
   const [data, setData] = useState({ email: "", password: "" });
@@ -14,13 +15,14 @@ function LoginWrapper(props) {
     try {
       setLoader(true);
       const res = await signInUser(data.email, data.password);
-      console.log(res);
+      const user = await getUser(res.user.uid);
+      localStorage.setItem("knightUser", JSON.stringify(user.data.message));
+      window.location.reload();
     } catch (err) {
-      console.log(err);
+      setError(err);
     } finally {
       setLoader(false);
     }
-    console.log(data);
   };
   return (
     <div className="h-[400px] w-[500px] bg-[#f5f5f5] rounded-lg shadow-md">
@@ -32,15 +34,24 @@ function LoginWrapper(props) {
           type="email"
           inputLabel={"Email"}
           value={data.email}
-          onChange={(e) => setData({ ...data, email: e.target.value })}
+          onChange={(e) => {
+            setError("");
+            setData({ ...data, email: e.target.value });
+          }}
         />
         <div className="h-[20px]" />
         <MainInput
           inputLabel={"Password"}
           type="password"
           value={data.password}
-          onChange={(e) => setData({ ...data, password: e.target.value })}
+          onChange={(e) => {
+            setError("");
+            setData({ ...data, password: e.target.value });
+          }}
         />
+        {error && (
+          <p className="text-red-700 text-[13px] text-center mt-2 ">{error}</p>
+        )}
         <div className="flex justify-center mt-[30px] ">
           <MainButton type="submit" label={"Login"} loading={loader} />
         </div>
