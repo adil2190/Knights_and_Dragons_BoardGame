@@ -2,6 +2,8 @@
 
 Live Demo at [Knights & Dragons](https://knightsanddragons-3.web.app/).
 
+Keep in mind that the application is not responsive, so please open it in Desktop view.
+
 ## Steps to run the game
 
 You can either check the live demo, or if you want to run it locally then follow the following steps:
@@ -19,3 +21,5 @@ Install all the dependancies using `npm install or yarn install`
 Go over to your terminal in the cloned repo directory and write `npm start`
 
 ### `4. Enjoy!`
+
+Sign in or create a new account and enjoy the game.
